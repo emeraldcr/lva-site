@@ -1,65 +1,65 @@
-import Image from "next/image";
-
-export default function Home() {
+"use client";
+import React, { JSX, useMemo } from "react";
+// Components
+import CalendarSection from "@/app/components/sections/CalendarSection";
+import ReservationSection from "@/app/components/sections/ReservationSection";
+import DynamicHeroHeader from "@/app/components/sections/DynamicHeroHeader";
+import ErrorBoundary from "@/lib/errorBoundary";
+import { CalendarProvider } from "@/app/context/CalendarContext";
+// Utilities
+import { cn } from "@/lib/utils";
+import { motion } from "framer-motion"; // Added motion for subtle entry animation
+// --- Home Content Component (Optimized) ---
+interface HomeContentProps {
+  // Keeping interface clean
+}
+const HomeContent: React.FC<HomeContentProps> = React.memo(() => {
+  // Define grid structure within useMemo for stability 
+  const mainSections = useMemo(() => (
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.2 }}
+      id="booking-interface"
+      className={cn(
+        "container mx-auto p-4 md:p-8", // Added padding for better mobile spacing
+        "grid grid-cols-1 lg:grid-cols-7 gap-4", // ⭐️ CHANGED: Reduced gap from gap-8 to gap-4
+        "min-h-[60vh] -mt-16 md:-mt-24 relative z-10"
+      )}
+    >
+      {/* 1. Calendar/Details Section (Left-Hand Side) */}
+      {/* On Mobile (cols-1), takes full width. On Desktop (lg:cols-5), takes 4/5 width. */}
+      <section className="lg:col-span-4 w-full"> {/* ⭐️ CHANGED: col-span-3 to col-span-4, added w-full */}
+        <CalendarSection />
+      </section>
+      
+      {/* 2. Reservation Summary Section (Right-Hand Side) */}
+      {/* On Mobile, stacks below. On Desktop (lg:cols-5), takes 1/5 width. */}
+      <aside className="lg:col-span-3 sticky top-8 self-start"> {/* ⭐️ CHANGED: col-span-2 to col-span-1 */}
+        <ReservationSection />
+      </aside>
+    </motion.div>
+  ), []);
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main className="min-h-screen bg-zinc-50 dark:bg-black overflow-x-hidden">
+      <DynamicHeroHeader />
+      {mainSections}
+    </main>
+  );
+});
+HomeContent.displayName = 'HomeContent';
+// --- Root Page Component (Safest Structure) ---
+export default function Home(): JSX.Element {
+  return (
+    // The ErrorBoundary correctly wraps the context provider, protecting the whole flow.
+    <ErrorBoundary fallback={
+      <div className="flex justify-center items-center h-screen text-xl text-red-600 bg-black">
+        ⚠️ Critical System Failure: Cannot load the booking engine.
+      </div>
+    }>
+      <CalendarProvider>
+        <HomeContent />
+      </CalendarProvider>
+    </ErrorBoundary>
   );
 }
